@@ -1,0 +1,37 @@
+-- Tabla de hoteles/ CANTIDAD DE HOTELES QUE VAMOS A TENER 
+CREATE TABLE hoteles (
+    id INTEGER PRIMARY KEY,
+    nombre TEXT NOT NULL,
+    ciudad TEXT NOT NULL
+);
+
+-- Tabla de habitaciones QUE CONTIENE CADA HOTEL
+CREATE TABLE habitaciones (
+    id INTEGER PRIMARY KEY,
+    hotel_id INTEGER,
+    tipo TEXT, -- estandar, premium, vip
+    capacidad INTEGER,
+    FOREIGN KEY (hotel_id) REFERENCES hoteles(id)
+);
+
+-- Tabla de reservas (manejo por fechas)
+CREATE TABLE reservas (
+    id INTEGER PRIMARY KEY,
+    habitacion_id INTEGER,
+    fecha_inicio DATE,
+    fecha_fin DATE,
+    personas INTEGER,
+    FOREIGN KEY (habitacion_id) REFERENCES habitaciones(id)
+);
+--- consulta LOGICA DE DISPONIBILIDAD 
+SELECT h.*
+FROM habitaciones h
+LEFT JOIN reservas r ON h.id = r.habitacion_id
+    AND (
+        r.fecha_inicio <= :fecha_fin AND
+        r.fecha_fin >= :fecha_inicio
+    )
+WHERE r.id IS NULL
+AND h.capacidad >= :personas
+AND h.tipo = :tipo
+AND h.hotel_id = :hotel_id;
